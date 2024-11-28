@@ -1,0 +1,61 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit3.h"
+#include "Unit2.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm3 *Form3;
+//---------------------------------------------------------------------------
+__fastcall TForm3::TForm3(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit1Exit(TObject *Sender)
+{
+	String text = Edit1->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit1->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button6Click(TObject *Sender)
+{
+    AnsiString searchStr = Edit1->Text;
+
+	for(int i = 1; i < Form2->StringGrid1->RowCount; i++) // начинаем с 1, чтобы пропустить первую строку
+	{
+		AnsiString rowStr = "";
+		for(int j = 0; j < Form2->StringGrid1->ColCount; j++)
+		{
+            rowStr = rowStr + Form2->StringGrid1->Cells[j][i] + " "; // добавляем пробел между значениями ячеек
+        }
+        rowStr = rowStr.SubString(1, rowStr.Length() - 1); // удаляем последний пробел
+
+        if(rowStr.Pos(searchStr) != 0) // проверяем, содержит ли строка поисковую подстроку
+        {
+            ShowMessage(rowStr); // выводим найденную строку
+        }
+    }
+}
+//---------------------------------------------------------------------------
+
+

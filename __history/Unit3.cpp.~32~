@@ -1,0 +1,596 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit3.h"
+#include "Unit2.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm3 *Form3;
+//---------------------------------------------------------------------------
+__fastcall TForm3::TForm3(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+void __fastcall TForm3::Button1Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit1
+AnsiString searchString = Edit1->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем фамилию
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString surname = Form2->StringGrid1->Cells[1][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (surname == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[1][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Фамилии не найдены");
+}
+else
+{
+	ShowMessage("Найденные фамилии:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit1
+Edit1->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по фамилии";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button2Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit2
+AnsiString searchString = Edit2->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем имя
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString name = Form2->StringGrid1->Cells[2][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (name == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[2][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Имена не найдены");
+}
+else
+{
+	ShowMessage("Найденные имена:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit2
+Edit2->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по имени";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm3::Button3Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit3
+AnsiString searchString = Edit3->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString patronymice = Form2->StringGrid1->Cells[3][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (patronymice == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[3][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Отчества не найдены");
+}
+else
+{
+	ShowMessage("Найденные отчества:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit3
+Edit3->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по отчеству";
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button4Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit4
+AnsiString searchString = Edit4->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+int num;
+if (!TryStrToInt(Edit4->Text, num)) {
+
+	ShowMessage("Значение в поле Год рождения должно быть целочисленным.");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем имя
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString year = Form2->StringGrid1->Cells[4][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (year == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[4][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Годы рождения не найдены");
+}
+else
+{
+	ShowMessage("Найденные годы рождения:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit4
+Edit4->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по году рождения";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button5Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit4
+AnsiString searchString = Edit5->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+int num;
+if (!TryStrToInt(Edit5->Text, num)) {
+
+	ShowMessage("Значение в поле Пол(1-муж, 2-жен) должно быть целочисленным.");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString gender = Form2->StringGrid1->Cells[5][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (gender == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[5][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Гендеры не найдены");
+}
+else
+{
+	ShowMessage("Найденные гендеры:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit5
+Edit5->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по гендеру (полу)";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button6Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit6
+AnsiString searchString = Edit6->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем имя
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString address = Form2->StringGrid1->Cells[6][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (address == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[6][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Адреса не найдены");
+}
+else
+{
+	ShowMessage("Найденные адреса местожительства:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit6
+Edit6->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по адресу местожительства";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button7Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit7
+AnsiString searchString = Edit7->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString education = Form2->StringGrid1->Cells[7][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (education == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[7][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Уровни образования не найдены");
+}
+else
+{
+	ShowMessage("Найденные уровни образования:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit7
+Edit7->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по уровню образования";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button8Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit8
+AnsiString searchString = Edit8->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+int num;
+if (!TryStrToInt(Edit8->Text, num)) {
+
+	ShowMessage("Значение в поле Количество детей должно быть целочисленным.");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем имя
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString children = Form2->StringGrid1->Cells[8][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (children == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[8][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Количество детей не найдено");
+}
+else
+{
+	ShowMessage("Найденные количества детей:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit8
+Edit8->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по количеству детей";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button9Click(TObject *Sender)
+{
+// Получаем символы для поиска из поля ввода Form3->Edit9
+AnsiString searchString = Edit9->Text.Trim().LowerCase();
+// Если поле ввода пустое, выводим сообщение и выходим
+if (searchString == "")
+{
+	ShowMessage("Введите текст для поиска");
+	return;
+}
+
+// Если введено менее трех символов, выводим сообщение и выходим
+if (searchString.Length() < 3)
+{
+	ShowMessage("Введите хотя бы 3 символа для поиска");
+	return;
+}
+
+// Закрываем форму Form3
+Close();
+
+// Итерируемся по строкам таблицы StringGrid1 и ищем
+AnsiString foundRows = "";
+for (int row = 1; row < Form2->StringGrid1->RowCount; row++)
+{
+	AnsiString work = Form2->StringGrid1->Cells[9][row].SubString(1, searchString.Length()).LowerCase();
+
+	if (work == searchString)
+	{
+		foundRows += Form2->StringGrid1->Cells[0][row] + " " + Form2->StringGrid1->Cells[9][row] + "\n";
+	}
+}
+
+// Выводим найденные строки в окне сообщений
+if (foundRows == "")
+{
+	ShowMessage("Места работы не найдены");
+}
+else
+{
+	ShowMessage("Найденные места работы:\n" + foundRows);
+}
+
+// Очищаем поле ввода Form3->Edit9
+Edit9->Clear();
+
+// Устанавливаем статус выполнения поиска
+Form2->StatusBar1->SimpleText = "Выполнен поиск по месту работы";
+
+	// спросим у пользователя, нужно ли сохранять результаты в файл
+	int save_result = MessageDlg("Хотите сохранить результаты в файл?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
+	if (save_result == mrYes) {
+	  Form2->N4Click(Sender);
+	}
+	else  {
+	ShowMessage("Результат не сохранён в файл");
+	}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit1Exit(TObject *Sender)
+{
+	String text = Edit1->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit1->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit2Exit(TObject *Sender)
+{
+	String text = Edit2->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit2->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm3::Edit3Exit(TObject *Sender)
+{
+	String text = Edit3->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit3->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit6Exit(TObject *Sender)
+{
+	String text = Edit6->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit6->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+

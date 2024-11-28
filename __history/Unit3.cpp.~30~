@@ -1,0 +1,382 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit3.h"
+#include "Unit2.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm3 *Form3;
+//---------------------------------------------------------------------------
+__fastcall TForm3::TForm3(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+void __fastcall TForm3::Button1Click(TObject *Sender)
+{
+	// Получаем фамилию для поиска
+	AnsiString surname = Form3->Edit1->Text;
+	bool found = false; // добавляем флаг для проверки наличия фамилии в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastName = Form2->StringGrid1->Cells[1][nom];
+	// Если фамилия в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastName.Pos(surname) > 0)
+	{
+        Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 1;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что фамилия не найдена
+	ShowMessage("Фамилия не найдена");
+}
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm3::Button2Click(TObject *Sender)
+{
+	// Получаем имя для поиска
+	AnsiString name = Form3->Edit2->Text;
+	bool found = false; // добавляем флаг для проверки наличия имени в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastName = Form2->StringGrid1->Cells[2][nom];
+	// Если имя в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastName.Pos(name) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 2;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что имя не найдена
+	ShowMessage("Имя не найдено");
+}
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm3::Button3Click(TObject *Sender)
+{
+	// Получаем отчество для поиска
+	AnsiString patronymic = Form3->Edit3->Text;
+	bool found = false; // добавляем флаг для проверки наличия имени в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastName = Form2->StringGrid1->Cells[3][nom];
+	// Если отчество в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastName.Pos(patronymic) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 3;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что отчество не найдено
+	ShowMessage("Отчество не найдено");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button4Click(TObject *Sender)
+{
+	// Получаем год рождения для поиска
+	AnsiString yearOfBirth = Form3->Edit4->Text;
+	bool found = false; // добавляем флаг для проверки наличия года рождения в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastName = Form2->StringGrid1->Cells[4][nom];
+	// Если год рождения в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastName.Pos(yearOfBirth) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 4;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что год рождени не найден
+	ShowMessage("Год рождения не найден");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button5Click(TObject *Sender)
+{
+	// Получаем гендер (пол) для поиска
+	AnsiString gender = Form3->Edit5->Text;
+	bool found = false; // добавляем флаг для проверки пола в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastGender = Form2->StringGrid1->Cells[5][nom];
+	// Если пол в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastGender.Pos(gender) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 5;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что пол не найден
+	ShowMessage("Гендер (пол) не найден");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button6Click(TObject *Sender)
+{
+	// Получаем адресу местожительства для поиска
+	AnsiString address = Form3->Edit6->Text;
+	bool found = false; // добавляем флаг для проверки пола в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastAddress = Form2->StringGrid1->Cells[6][nom];
+	// Если адрес местожительства в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastAddress.Pos(address) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 6;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что пол не найден
+	ShowMessage("Адрес местожительства (город) не найден");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button7Click(TObject *Sender)
+{
+	// Получаем уровень образования для поиска
+	AnsiString education = Form3->Edit7->Text;
+	bool found = false; // добавляем флаг для проверки пола в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastEducation = Form2->StringGrid1->Cells[7][nom];
+	// Если уровень образования в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastEducation.Pos(education) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 7;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что уровень образования не найден
+	ShowMessage("Уровень образования не найден");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button8Click(TObject *Sender)
+{
+	// Получаем количество детей для поиска
+	AnsiString children = Form3->Edit8->Text;
+	bool found = false; // добавляем флаг для проверки количества детей в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastChildren = Form2->StringGrid1->Cells[8][nom];
+	// Если количество детей в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastChildren.Pos(children) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 8;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что количество детей не найдено
+	ShowMessage("Количество детей не найдено");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Button9Click(TObject *Sender)
+{
+	// Получаем место работы для поиска
+	AnsiString placeOfWork = Form3->Edit9->Text;
+	bool found = false; // добавляем флаг для проверки места работы в таблице
+
+// Перебираем строки таблицы
+for (int nom = 1; nom < Form2->StringGrid1->RowCount; nom++)
+{
+	AnsiString lastPlaceOfWork = Form2->StringGrid1->Cells[9][nom];
+	// Если место работы в ячейке содержит искомое значение,
+	// то выделяем эту строку в таблице
+	if (lastPlaceOfWork.Pos(placeOfWork) > 0)
+	{
+		Form2->StringGrid1->Row = nom;
+		Form2->StringGrid1->Col = 9;
+		found = true; // устанавливаем флаг в значение true
+		break;
+	}
+}
+
+if (found)
+{
+	// отображаем форму2 (main)
+	Form2->Show();
+	// скрываем форму3 (поиск в списке)
+	Form3->Hide();
+}
+else
+{
+	// выводим сообщение о том, что место работы не найдено
+	ShowMessage("Место работы не найдено");
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit1Exit(TObject *Sender)
+{
+	String text = Edit1->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit1->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit2Exit(TObject *Sender)
+{
+	String text = Edit2->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit2->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm3::Edit3Exit(TObject *Sender)
+{
+	String text = Edit3->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit3->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Edit6Exit(TObject *Sender)
+{
+	String text = Edit6->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit6->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+

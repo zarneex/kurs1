@@ -1,0 +1,1064 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+#include <string.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <Windows.h>
+#include <DateUtils.hpp>  //для определения текущего года
+#include <Vcl.Dialogs.hpp>
+using namespace std;
+#include "Unit2.h"
+#include "Unit1.h"
+#include "Unit3.h"
+#include "Unit4.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm2 *Form2;
+extern bool rad;
+//---------------------------------------------------------------------------
+__fastcall TForm2::TForm2(TComponent *Owner)
+: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+void writeToFile(String fileName) {
+	ofstream myfile; // создание объекта myfile класса ofstream
+	myfile.open(fileName.c_str(), ios::app); // открытие файла для записи в режиме добавления
+	if (myfile.is_open()) // проверка успешного открытия файла
+	{
+		ifstream checkFile(fileName.c_str());
+		bool isFirstLine = checkFile.peek() == ifstream::traits_type::eof(); // проверяем, пустой ли файл
+		if (isFirstLine) // если файл пустой
+	{
+		myfile << "№" << '\t' << "Фамилия" << '\t' << "Имя" << '\t' << "Отчество" << '\t'
+			<< "Кол-во урожая" << '\t' << "Год урожая" << '\t' << "Номер бригады" <<  '\n';
+	}
+
+	// записываем значения из Edit'ов, разделяя их символами табуляции
+	myfile << AnsiString(Form1->Edit1->Text).c_str() << '\t';
+	myfile << AnsiString(Form1->Edit2->Text).c_str() << '\t';
+	myfile << AnsiString(Form1->Edit3->Text).c_str() << '\t';
+	myfile << AnsiString(Form1->Edit4->Text).c_str() << '\t';
+	myfile << AnsiString(Form1->Edit5->Text).c_str() << '\t';
+	myfile << AnsiString(Form1->Edit6->Text).c_str() <<  '\n';
+
+
+	myfile.close(); // закрытие файла
+	StatusBar1->SimpleText = "Данные успешно записаны в файл.";
+	}
+	else
+	{
+	ShowMessage("Не удаётся записать данные в файл.");
+	}
+
+}
+
+void readFromFile()
+{
+	ifstream myfile;
+	myfile.open("example.txt");
+	if (myfile.is_open())
+	{
+		string line;
+		int row = 0;
+		bool firstLine = true;
+		while (getline(myfile, line))
+		{
+			stringstream ss(line);
+			int col = 0;
+			string value;
+			while (getline(ss, value, ','))
+			{
+				if (!firstLine) // если это не первая строка файла
+				{
+					Form2->StringGrid1->Cells[col][row] = value.c_str(); // запись значения в соответствующую ячейку, начиная со второй строки
+				}
+				else // если это первая строка файла
+				{
+					// Проверяем формат первой строки
+					string expectedHeader = "№,Фамилия лидера бригады,Имя лидера бригады,Отчество лидера бригады,кол-во картофеля(кг),Дата сбора,Номер бригады";
+					if (value != expectedHeader)
+					{
+						// Неправильный формат первой строки, выходим из функции
+						ShowMessage("Неправильный формат первой строки файла.");
+						myfile.close();
+						return;
+					}
+					firstLine = false; // установить флаг первой строки в значение false
+				}
+				col++;
+			}
+			if (!firstLine) // если это не первая строка файла
+			{
+				row++; // увеличить индекс строки для записи в таблицу
+			}
+		}
+		myfile.close();
+		StatusBar1->SimpleText = "Данные успешно загружены из файла.";
+	}
+	else
+	{
+		ShowMessage("Не удалось открыть файл или файл не существует.");
+	}
+}
+
+
+
+void __fastcall TForm2::FormCreate(TObject *Sender)
+{
+StringGrid1->Cells[0][0] = "№"; //колонка-строка
+StringGrid1->Cells[1][0] = "Наименование товара";
+StringGrid1->Cells[2][0] = "Цена";
+StringGrid1->Cells[3][0] = "Количество";
+StringGrid1->Cells[4][0] = "Срок годности";
+StringGrid1->Cells[5][0] = "Дата изготовления";
+StringGrid1->Cells[6][0] = "Дата поступления.";
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N8Click(TObject *Sender)
+{
+    bool fileOpened = false; // Переменная для проверки открытия файла
+
+    // Проверка открытия файла
+    if (Form2->Caption != "Добавление") {
+        // Если файл открыт, установите fileOpened в true
+        fileOpened = true;
+    }
+
+    if (StringGrid1->RowCount > 1 && !fileOpened) {
+        // Если есть данные в других ячейках и файл не открыт, добавляем строку в конец
+        int newRow = StringGrid1->RowCount; // новая строка будет добавлена в конец
+        StringGrid1->RowCount++; // увеличиваем количество строк в таблице на 1
+
+        // заполняем новую строку пустыми значениями
+        StringGrid1->Cells[0][newRow] = IntToStr(newRow);
+        StringGrid1->Cells[1][newRow] = "";
+        StringGrid1->Cells[2][newRow] = "";
+        StringGrid1->Cells[3][newRow] = "";
+        StringGrid1->Cells[4][newRow] = "";
+        StringGrid1->Cells[5][newRow] = "";
+        StringGrid1->Cells[6][newRow] = "";
+
+        // устанавливаем выделение на новую строку
+        StringGrid1->Row = newRow;
+        StringGrid1->Col = 1;
+
+        // обновляем номера строк
+        for (int i = 1; i < StringGrid1->RowCount; i++) {
+            StringGrid1->Cells[0][i] = IntToStr(i);
+        }
+
+        StatusBar1->SimpleText = "Добавлена новая строка";
+    } else {
+        // Если таблица пустая или файл открыт, добавляем строку в начало
+
+        // Увеличиваем количество строк в таблице на 1
+        StringGrid1->RowCount++;
+
+        // Сдвигаем существующие строки вниз, начиная с последней
+        for (int i = StringGrid1->RowCount - 1; i > 1; i--) {
+            for (int j = 0; j < StringGrid1->ColCount; j++) {
+                StringGrid1->Cells[j][i] = StringGrid1->Cells[j][i - 1];
+            }
+        }
+
+        // Заполняем новую первую строку пустыми значениями
+        for (int j = 0; j < StringGrid1->ColCount; j++) {
+            StringGrid1->Cells[j][1] = "";
+        }
+
+        // Устанавливаем выделение на новую строку
+        StringGrid1->Row = 1;
+        StringGrid1->Col = 1;
+
+        // Обновляем номера строк
+        for (int i = 1; i < StringGrid1->RowCount; i++) {
+			StringGrid1->Cells[0][i] = IntToStr(i);
+		}
+			Form1->Edit1->Clear();
+			Form1->Edit2->Clear();
+			Form1->Edit3->Clear();
+			Form1->Edit4->Clear();
+			Form1->Edit5->Clear();
+			Form1->Edit6->Clear();
+		Form1->Show();
+
+        StatusBar1->SimpleText = "Добавлена новая строка";
+    }
+}
+
+
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::StringGrid1SelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect)
+{
+	int nom = ARow;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N9Click(TObject *Sender)
+{
+	// Проверяем, что выбрана какая-то строка
+	if (StringGrid1->Selection.Top > 0) {
+		// Получаем индекс выбранной строки
+		int nom = StringGrid1->Selection.Top;
+		Form1->Button1->Caption = "Редактирование";
+		Form1->Caption = "Редактирование";
+		Form1->Edit1->Text = Form2->StringGrid1->Cells[1][nom];
+		Form1->Edit2->Text = Form2->StringGrid1->Cells[2][nom];
+		Form1->Edit3->Text = Form2->StringGrid1->Cells[3][nom];
+		Form1->Edit4->Text = Form2->StringGrid1->Cells[4][nom];
+		Form1->Edit5->Text = Form2->StringGrid1->Cells[5][nom];
+		Form1->Edit6->Text = Form2->StringGrid1->Cells[6][nom];
+		Form1->Show();
+		StatusBar1->SimpleText = "Выполнено редактирование строки";
+	}
+	else {
+		StatusBar1->SimpleText = "Не выбрана строка для редактирования";
+	}
+
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N10Click(TObject *Sender)
+{
+	int Top = StringGrid1->Selection.Top;
+	if (MessageDlg("Вы действительно хотите удалить строку " + IntToStr(Top) + " ?", mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo, 0) == mrYes)
+	{
+		// Удаляем выбранную строку
+		for (int i = Top; i < StringGrid1->RowCount - 1; ++i)
+		{
+			for (int j = 0; j < StringGrid1->ColCount; ++j)
+			{
+				StringGrid1->Cells[j][i] = StringGrid1->Cells[j][i + 1];
+			}
+		}
+		StringGrid1->RowCount--;
+		for (int i = 1; i < StringGrid1->RowCount-1; i++)
+{
+	StringGrid1->Rows[i]->Strings[0] = IntToStr(i);
+}
+
+
+		StatusBar1->SimpleText = "Выполнено удаление выбранной строки";
+	}
+	
+}
+
+
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm2::N2Click(TObject *Sender)
+{
+	TOpenDialog *OpenDialog = new TOpenDialog(this);
+	OpenDialog->Title = "Выберите файл";
+	OpenDialog->Filter = "Текстовые файлы (*.txt)|*.txt";
+
+	if (OpenDialog->Execute()) // Если пользователь выбрал файл
+	{
+		// Открытие выбранного файла для чтения
+		ifstream myfile;
+		myfile.open(OpenDialog->FileName.c_str());
+		if (myfile.is_open()) // Проверка успешного открытия файла
+		{
+			string line;
+			int row = 0;
+			bool firstLine = true;
+
+			while (getline(myfile, line)) // чтение строк из файла
+			{
+				if (firstLine) // если это первая строка файла
+				{
+					// Проверяем формат первой строки
+					string expectedHeader = "№,Наименование товара,Цена,Количество,Срок годности,Дата изготовления,Дата поступления на склад";
+					if (line != expectedHeader)
+					{
+						// Неправильный формат первой строки, выходим из функции
+						ShowMessage("Неправильный формат первой строки файла.");
+						myfile.close();
+						return;
+					}
+
+					stringstream ss(line);
+					int col = 0;
+					string value;
+					while (getline(ss, value, ',')) // разделение строки на ячейки по запятым
+					{
+						Form2->StringGrid1->Cells[col][row] = String(value.c_str()); // запись значения в соответствующую ячейку
+						col++;
+					}
+					firstLine = false; // установить флаг первой строки в значение false
+				}
+				else // если это не первая строка файла
+				{
+					// Удаляем символ перевода строки в конце строки, если он есть
+					if (!line.empty() && line[line.length() - 1] == '\n')
+					{
+						line.erase(line.length() - 1);
+					}
+
+					stringstream ss(line);
+					int col = 0;
+
+					string value;
+					while (getline(ss, value, ',')) // разделение строки на ячейки по запятым
+					{
+						Form2->StringGrid1->Cells[col][row] = String(value.c_str()); // запись значения в соответствующую ячейку
+						col++;
+					}
+				}
+				row++;
+			}
+
+			myfile.close(); // закрытие файла
+			ShowMessage("Данные успешно загружены из файла.");
+		}
+		else
+		{
+			ShowMessage("Не удалось открыть файл.");
+		}
+	}
+	StatusBar1->SimpleText = "Выполнено открытие файла";
+}
+
+
+
+
+
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::N4Click(TObject *Sender)
+{
+	// Диалог сохранения файла
+
+	if (SaveDialog1->Execute()) // Если пользователь выбрал файл для сохранения
+	{
+	// Открытие файла для записи
+	ofstream myfile;
+	myfile.open(SaveDialog1->FileName.c_str(), ios::trunc);
+
+	if (myfile.is_open()) // Проверка успешного открытия файла
+	{
+		// Запись данных из таблицы в файл
+		for (int row = 0; row < StringGrid1->RowCount; row++)
+		{
+			for (int col = 0; col < StringGrid1->ColCount; col++)
+			{
+				myfile << AnsiString(StringGrid1->Cells[col][row]).c_str();
+				if (col < StringGrid1->ColCount - 1)
+				{
+					myfile << ",";
+				}
+			}
+			myfile << endl;
+		}
+
+		myfile.close(); // закрытие файла
+		StatusBar1->SimpleText = ("Данные успешно сохранены в файл.");
+	}
+	else
+	{
+		ShowMessage("Не удалось сохранить файл.");
+	}
+	}
+		 StatusBar1->SimpleText = "Выполнено сохранение в выбранный файл";
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N3Click(TObject *Sender) {
+    // Имя файла для сохранения
+    AnsiString fileName = "example.txt";
+
+    // Открытие файла для записи
+    ofstream myfile;
+    myfile.open(fileName.c_str(), ios::trunc); // Перезаписываем файл
+
+    if (myfile.is_open()) { // Проверка успешного открытия файла
+        // Запись данных из таблицы в файл
+        for (int row = 0; row < StringGrid1->RowCount; row++) {
+            for (int col = 0; col < StringGrid1->ColCount; col++) {
+                myfile << AnsiString(StringGrid1->Cells[col][row]).c_str();
+                if (col < StringGrid1->ColCount - 1) { // Разделитель между столбцами
+                    myfile << ",";
+                }
+            }
+            myfile << endl; // Переход на новую строку
+        }
+
+        myfile.close(); // Закрытие файла
+		StatusBar1->SimpleText = ("Данные успешно сохранены в файл: " + fileName);
+    } else {
+        ShowMessage("Не удалось сохранить файл: " + fileName);
+    }
+
+    // Обновление статуса
+    StatusBar1->SimpleText = "Данные сохранены в " + fileName;
+}
+
+
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::N18Click(TObject *Sender)
+{
+	Form3 = new TForm3(Application);
+	Form3->Show();
+
+
+}
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void CheckDataSaved()
+{
+	bool unsavedData = true;
+	if (!unsavedData) { // если данные сохранены, то ничего не делаем
+		Application->Terminate();
+	}
+
+	int result = MessageBoxW(NULL, L"Данные не сохранены. Хотите сохранить их перед выходом?",
+		L"Внимание", MB_YESNOCANCEL | MB_ICONWARNING);
+
+	if (result == IDYES) { // пользователь хочет сохранить данные перед выходом
+		Form2->N4Click(NULL); // сохранить данные в файл
+		Application->Terminate(); // закрыть программу
+	} else if (result == IDNO) { // пользователь не хочет сохранять данные перед выходом
+		Application->Terminate(); // закрыть программу
+	} else { // пользователь отменил закрытие программы
+		return;
+	}
+}
+
+void __fastcall TForm2::N6Click(TObject *Sender)
+{
+	CheckDataSaved();
+	Close();
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm2::N35Click(TObject *Sender) {
+    double totalCost = 0.0; // Общая стоимость товаров
+
+    // Пройдемся по строкам таблицы, начиная со второй строки (первая строка - шапка)
+    for (int i = 1; i < StringGrid1->RowCount; i++) {
+        // Получаем цену
+        UnicodeString priceStr = StringGrid1->Cells[2][i].Trim(); // Убираем лишние пробелы
+        if (priceStr.IsEmpty()) {
+            continue; // Пропускаем строку, если цена не указана
+        }
+
+        // Преобразование цены с учётом разделителя
+        priceStr = StringReplace(priceStr, ".", ",", TReplaceFlags() << rfReplaceAll);
+        double price = StrToFloatDef(priceStr, -1); // Если цена некорректна, возвращается -1
+        if (price < 0) {
+            ShowMessage("Некорректное значение цены в строке " + IntToStr(i + 1));
+            continue;
+        }
+
+        // Получаем количество
+        UnicodeString quantityStr = StringGrid1->Cells[3][i].Trim(); // Убираем лишние пробелы
+        if (quantityStr.IsEmpty()) {
+            continue; // Пропускаем строку, если количество не указано
+        }
+
+        int quantity = StrToIntDef(quantityStr, -1); // Если количество некорректно, возвращается -1
+        if (quantity < 0) {
+            ShowMessage("Некорректное значение количества в строке " + IntToStr(i + 1));
+            continue;
+        }
+
+        // Увеличиваем общую стоимость
+        totalCost += price * quantity;
+    }
+
+    // Проверяем, посчиталась ли стоимость
+    if (totalCost == 0.0) {
+        MessageBoxW(NULL, L"Данные не найдены или некорректны. Проверьте таблицу.", L"Ошибка", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    // Выводим результаты
+    UnicodeString message = "Общая стоимость товаров: " + FloatToStrF(totalCost, ffFixed, 15, 2) + " руб.";
+    UnicodeString caption = "Результат";
+    MessageBoxW(NULL, message.c_str(), caption.c_str(), MB_OK | MB_ICONINFORMATION);
+
+    // Спрашиваем у пользователя, нужно ли сохранить результаты в файл
+    int save_result = MessageBoxW(NULL, L"Хотите сохранить результаты в файл?", L"Сохранение результатов", MB_YESNO | MB_ICONINFORMATION);
+    if (save_result == IDYES) {
+        UnicodeString data_to_save = "Общая стоимость товаров: " + FloatToStrF(totalCost, ffFixed, 15, 2) + " руб.";
+        SaveToFile(data_to_save);
+        MessageBoxW(NULL, L"Результат сохранен в файл", L"Сохранение результатов", MB_OK | MB_ICONINFORMATION);
+    } else {
+        MessageBoxW(NULL, L"Результат не сохранен в файл", L"Сохранение результатов", MB_OK | MB_ICONINFORMATION);
+    }
+}
+
+
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void TForm2::SortTable(int column) {
+    Form1->Caption = "Сортировка";
+
+    int rowCount = StringGrid1->RowCount;
+    int colCount = StringGrid1->ColCount;
+
+    if (rowCount <= 1) {
+        MessageBoxW(NULL, L"Недостаточно данных для сортировки.", L"Ошибка", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    vector<vector<AnsiString>> rows;
+    for (int i = 1; i < rowCount; ++i) {
+        vector<AnsiString> row;
+        for (int j = 0; j < colCount; ++j) {
+            row.push_back(StringGrid1->Cells[j][i]);
+        }
+        rows.push_back(row);
+    }
+
+    auto parseNumber = [](AnsiString str) -> double {
+        try {
+            str = StringReplace(str, ".", ",", TReplaceFlags() << rfReplaceAll);
+            return str.ToDouble();
+        } catch (...) {
+            throw Exception("Ошибка: неверный формат числа - " + str);
+        }
+    };
+
+    // Лямбда для обработки даты
+    auto parseDate = [](AnsiString str) -> TDateTime {
+        TFormatSettings formatSettings;
+        formatSettings.ShortDateFormat = "yyyy-mm-dd";
+        formatSettings.DateSeparator = '-';
+
+        TDateTime date;
+        if (!TryStrToDate(str, date, formatSettings)) {
+            throw Exception("Ошибка: неверный формат даты - " + str);
+        }
+        return date;
+    };
+
+    try {
+        switch (column) {
+            case 1:
+                sort(rows.begin(), rows.end(), [](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return a[1].LowerCase() < b[1].LowerCase();
+                });
+                break;
+
+            case 2:
+                sort(rows.begin(), rows.end(), [&](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return parseNumber(a[2]) < parseNumber(b[2]);
+                });
+                break;
+
+            case 3:
+                sort(rows.begin(), rows.end(), [](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return a[3].ToInt() < b[3].ToInt();
+                });
+                break;
+
+            case 4:
+                sort(rows.begin(), rows.end(), [](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return a[4].ToInt() < b[4].ToInt();
+                });
+                break;
+
+            case 5:
+                sort(rows.begin(), rows.end(), [&](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return parseDate(a[5]) < parseDate(b[5]);
+                });
+                break;
+
+            case 6:
+                sort(rows.begin(), rows.end(), [&](const vector<AnsiString>& a, const vector<AnsiString>& b) {
+                    return parseDate(a[6]) < parseDate(b[6]);
+                });
+                break;
+
+            default:
+				MessageBoxW(NULL, L"Некорректный номер столбца для сортировки.", L"Ошибка", MB_OK | MB_ICONERROR);
+                return;
+        }
+    } catch (Exception& e) {
+        MessageBoxW(NULL, e.Message.c_str(), L"Ошибка", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    for (int i = 1; i <= rows.size(); ++i) {
+        for (int j = 0; j < colCount; ++j) {
+            StringGrid1->Cells[j][i] = rows[i - 1][j];
+        }
+    }
+
+	StatusBar1->SimpleText = "Сортировка завершена.";
+}
+
+
+
+
+
+ //---------------------------------------------------------------------------------------
+void __fastcall TForm2::N14Click(TObject *Sender)
+{
+	   SortTable(1);
+}
+
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N15Click(TObject *Sender)
+{
+ SortTable(2);
+
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N28Click(TObject *Sender)
+{
+ SortTable(3);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N29Click(TObject *Sender)
+{
+SortTable(4);
+}
+
+
+
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm2::N30Click(TObject *Sender)
+{
+SortTable(5);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N33Click(TObject *Sender)
+{
+SortTable(6);
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm2::FormCloseQuery(TObject *Sender, bool &CanClose)
+{
+ if (rad)
+  {
+
+	switch (MessageDlg("Хотите сохранить файл?",  mtConfirmation,mbYesNoCancel,0))
+	case mrYes:  N4Click(Sender);
+	mrNo:   CanClose=true; //Application->Terminate();
+  }
+}
+//---------------------------------------------------------------------------
+
+
+
+
+void __fastcall TForm2::PopupMenu1Popup(TObject *Sender)
+{
+	// Создание и настройка пунктов меню
+TPopupMenu* popupMenu = new TPopupMenu(this);
+
+TMenuItem* itemOpen = new TMenuItem(popupMenu);
+itemOpen->Caption = "Открыть";
+itemOpen->OnClick = &N2Click;
+
+TMenuItem* itemSave = new TMenuItem(popupMenu);
+itemSave->Caption = "Сохранить";
+itemSave->OnClick = &N3Click;
+
+TMenuItem* itemSave2 = new TMenuItem(popupMenu);
+itemSave2->Caption = "Сохранить как..";
+itemSave2->OnClick = &N4Click;
+
+TMenuItem* itemFind = new TMenuItem(popupMenu);
+itemFind->Caption = "Поиск";
+itemFind->OnClick = &N18Click;
+
+TMenuItem* itemFam = new TMenuItem(popupMenu);
+itemFam->Caption = "Сортировка по фамилии";
+itemFam->OnClick = &N14Click;
+
+TMenuItem* itemName = new TMenuItem(popupMenu);
+itemName->Caption = "Сортировка по имени";
+itemName->OnClick = &N15Click;
+
+TMenuItem* itemPart = new TMenuItem(popupMenu);
+itemPart->Caption = "Сортировка по отчеству";
+itemPart->OnClick = &N28Click;
+
+TMenuItem* itemYear = new TMenuItem(popupMenu);
+itemYear->Caption = "Сортировка по кол-ву урожая";
+itemYear->OnClick = &N29Click;
+
+TMenuItem* itemGender = new TMenuItem(popupMenu);
+itemGender->Caption = "Сортировка по году урожая";
+itemGender->OnClick = &N30Click;
+
+
+
+TMenuItem* itemChild = new TMenuItem(popupMenu);
+itemChild->Caption = "Сортировка по номеру бригады";
+itemChild->OnClick = &N21Click;
+
+
+
+TMenuItem* itemZad1 = new TMenuItem(popupMenu);
+itemZad1->Caption = "Определение самого урожайного года";
+itemZad1->OnClick = &N35Click;
+
+
+
+popupMenu->Items->Add(itemOpen);
+popupMenu->Items->Add(itemSave);
+popupMenu->Items->Add(itemSave2);
+popupMenu->Items->Add(itemFind);
+popupMenu->Items->Add(itemFam);
+popupMenu->Items->Add(itemName);
+popupMenu->Items->Add(itemPart);
+popupMenu->Items->Add(itemYear);
+popupMenu->Items->Add(itemGender);
+
+popupMenu->Items->Add(itemChild);
+
+
+
+popupMenu->Items->Add(itemZad1);
+
+
+// Назначение контекстного меню
+StringGrid1->PopupMenu = popupMenu;
+}
+
+void __fastcall TForm2::StringGrid1MouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+	TPopupMenu* popupMenu = new TPopupMenu(this);
+	if (Button == mbRight) // если нажата правая кнопка мыши
+	{
+		popupMenu->Popup(X + StringGrid1->Left, Y + StringGrid1->Top); // показываем контекстное меню в координатах нажатия
+	}
+}
+
+
+void __fastcall TForm2::PopupMenu2Popup(TObject *Sender)
+{
+TPopupMenu* popupMenu = new TPopupMenu(this);
+
+TMenuItem* itemAdd = new TMenuItem(popupMenu);
+itemAdd->Caption = "Добавление";
+itemAdd->OnClick = &N8Click;
+
+TMenuItem* itemEdit = new TMenuItem(popupMenu);
+itemEdit->Caption = "Редактирование";
+itemEdit->OnClick = &N9Click;
+
+TMenuItem* itemDelete = new TMenuItem(popupMenu);
+itemDelete->Caption = "Удаление";
+itemDelete->OnClick = &N10Click;
+
+popupMenu->Items->Add(itemAdd);
+popupMenu->Items->Add(itemEdit);
+popupMenu->Items->Add(itemDelete);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::StringGrid1MouseDown(TObject *Sender, TMouseButton Button,
+		  TShiftState Shift, int X, int Y)
+{
+		if (Button == mbRight) // если нажата правая кнопка мыши
+	{
+		int ACol, ARow;
+		StringGrid1->MouseToCell(X, Y, ACol, ARow);
+		if ((ACol >= 0) && (ARow >= 0)) // если пользователь нажал на ячейку
+		{
+			StringGrid1->Col = ACol; // устанавливаем выбранную колонку
+			StringGrid1->Row = ARow; // устанавливаем выбранную строку
+			PopupMenu2->Popup(X + StringGrid1->Left, Y + StringGrid1->Top); // показываем контекстное меню в координатах нажатия
+		}
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm2::StatusBar1MouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift,
+		  int X, int Y)
+{
+StatusBar1->SimpleText = "Готово";
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N45Click(TObject *Sender)
+{
+	//О программе
+	String message =  "Название программного продукта: Rad Studio \n"
+						"Версия программного продукта: Embarcadero® C++Builder 12 Version 29.0.53982.0329\n"
+					 "Дата последних изменений в программе: 27.11.24\n"
+					 "Автор: Власов Максим\n"
+					 "E-mail: 3kavos@gmail.com";
+
+	// Выводим сообщение с объединенным текстом
+	ShowMessage(message);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N20Click(TObject *Sender)
+{
+	//Постановка задания
+	String message =  "Написать программу, формирующую список просроченных товаров и ведомость товаров, поступивших на склад в указанный период, вычислить общую стоимость товаров, хранящихся на складе. Структура исходных данных: наименование товара, цена, количество, срок годности, дата изготовления, дата поступления на склад.";
+
+	// Выводим сообщение с объединенным текстом
+	ShowMessage(message);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N19Click(TObject *Sender)
+{
+	//Справка
+	TFileStream *fileStream = new TFileStream("C:\\Users\\Арсений\\Desktop\\Курсовая по программированию\\Курсовая по программированию\\Справка.txt", fmOpenRead);
+	try {
+		int fileSize = fileStream->Size;
+		AnsiString data = "";
+		data.SetLength(fileSize);
+
+		// Читаем содержимое файла в буфер
+		fileStream->Read(data.c_str(), fileSize);
+
+		// Преобразуем содержимое файла из UTF-8 в UnicodeString
+		UnicodeString unicodeData = UTF8Decode(data);
+
+		// Выводим содержимое файла на экран
+		ShowMessage(unicodeData);
+	} catch(...) {
+		ShowMessage("Ошибка при чтении файла");
+	}
+
+	fileStream->Free();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::N46Click(TObject *Sender)
+{
+		TStringList *recentFiles = new TStringList;
+	recentFiles->LoadFromFile("recent_files.txt"); // загрузка ранее сохраненных файлов
+
+	// добавление текущего открытого файла в список, если файл выбран
+	if (OpenDialog1->Execute()) {
+		recentFiles->Add(OpenDialog1->FileName);
+			recentFiles->SaveToFile("recent_files.txt");
+		ShowMessage("Список ранее открытых файлов сохранен в файл");
+	}
+	else {
+		ShowMessage("Файл не выбран.\n"
+				   "Ошибка при сохранении списка ранее открытых файлов в файл.");
+	}
+
+
+	recentFiles->Free();
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm2::SaveToFile(AnsiString dataToSave)
+{
+	// Создаем диалоговое окно сохранения файла
+	TSaveDialog *SaveDialog1 = new TSaveDialog(this);
+	SaveDialog1->Filter = "Текстовые файлы (*.txt)|*.txt";
+
+	if (SaveDialog1->Execute())
+	{
+		// Открываем файл на запись
+		TStringList *StringList = new TStringList;
+		StringList->Add(dataToSave);
+		StringList->SaveToFile(SaveDialog1->FileName);
+		delete StringList;
+	}
+
+	delete SaveDialog1;
+}
+
+void __fastcall TForm2::N21Click(TObject *Sender)
+{
+	SortTable(6);
+}
+//---------------------------------------------------------------------------
+auto parseDate = [](AnsiString str) -> TDateTime {
+    TFormatSettings formatSettings;
+    formatSettings.DateSeparator = '-'; // Устанавливаем разделитель
+    formatSettings.ShortDateFormat = "yyyy-mm-dd"; // Указываем формат даты
+
+    TDateTime date;
+    if (!TryStrToDate(str, date, formatSettings)) {
+        throw Exception("Ошибка: неверный формат даты - " + str);
+    }
+    return date;
+};
+
+void __fastcall TForm2::SetDateRange(TDateTime start, TDateTime end)
+{
+    // Сохраняем выбранные даты
+    startDate = start;
+    endDate = end;
+}
+
+void __fastcall TForm2::FilterItemsByDate()
+{
+    // Применяем фильтрацию по датам
+    for (int i = 1; i < StringGrid1->RowCount; i++) {
+        String dateStr = StringGrid1->Cells[6][i];  // Предположим, что дата поступления на склад находится в 7-й колонке
+
+        if (dateStr == "") continue;
+
+		try {
+            TDateTime itemDate = StrToDate(dateStr);  // Преобразуем строку в дату
+
+			// Проверяем, входит ли дата товара в выбранный диапазон
+			if (itemDate >= startDate && itemDate <= endDate) {
+				// Товар соответствует диапазону дат
+				// Здесь вы можете, например, выделить строку или что-то еще
+			}
+
+		} catch (...) {
+		}
+
+    }
+}
+
+void __fastcall TForm2::N23Click(TObject *Sender)
+{
+    // Открываем форму TForm4 для выбора диапазона дат
+    TForm4 *form4 = new TForm4(this);
+    form4->ShowModal();  // Отображаем форму TForm4 в модальном режиме
+
+    // После того как форма закроется, фильтруем товары по выбранному диапазону дат
+    FilterItemsByDate();
+}
+
+
+
+void __fastcall TForm2::N22Click(TObject *Sender)
+{
+    static bool isFiltered = false; // Флаг состояния фильтрации
+    static TStringList *originalRows = nullptr; // Список для сохранения исходных строк
+
+    TMenuItem *menuItem = dynamic_cast<TMenuItem *>(Sender);
+    if (menuItem) {
+        menuItem->Checked = !menuItem->Checked; // Переключаем состояние Checked
+    }
+
+    if (!isFiltered) {
+        // Сохраняем исходные строки при первом нажатии
+        if (!originalRows) {
+            originalRows = new TStringList;
+            for (int row = 1; row < StringGrid1->RowCount; ++row) {
+                String rowData = "";
+                for (int col = 0; col < StringGrid1->ColCount; ++col) {
+                    rowData += StringGrid1->Cells[col][row] + "\t";
+                }
+                originalRows->Add(rowData);
+            }
+        }
+
+        // Выполняем фильтрацию просроченных товаров
+        TDateTime currentDate = DateTimePicker1->Date; // Текущая дата
+        TStringList *expiredRows = new TStringList;
+
+        try {
+            TFormatSettings formatSettings;
+            formatSettings.DateSeparator = '-';
+            formatSettings.ShortDateFormat = "yyyy-mm-dd";
+
+            for (int row = 1; row < StringGrid1->RowCount; ++row) {
+                String manufactureDateStr = StringGrid1->Cells[5][row];
+                String shelfLifeStr = StringGrid1->Cells[4][row];
+                shelfLifeStr = shelfLifeStr.Trim();
+
+                TDateTime manufactureDate;
+                int shelfLifeDays;
+
+				// Преобразуем данные
+                if (TryStrToDate(manufactureDateStr, manufactureDate, formatSettings) &&
+                    TryStrToInt(shelfLifeStr, shelfLifeDays)) {
+                    TDateTime expiryDate = manufactureDate + shelfLifeDays;
+
+                    if (expiryDate < currentDate) {
+                        String rowData = "";
+                        for (int col = 0; col < StringGrid1->ColCount; ++col) {
+                            rowData += StringGrid1->Cells[col][row] + "\t";
+                        }
+                        expiredRows->Add(rowData);
+                    }
+                }
+            }
+
+            // Очищаем строки (кроме заголовков)
+            StringGrid1->RowCount = 1;
+
+            // Добавляем просроченные строки в таблицу
+            for (int i = 0; i < expiredRows->Count; ++i) {
+                StringGrid1->RowCount = StringGrid1->RowCount + 1;
+                TStringList *rowData = new TStringList;
+                rowData->Delimiter = '\t';
+                rowData->DelimitedText = expiredRows->Strings[i];
+
+                for (int col = 0; col < rowData->Count; ++col) {
+                    StringGrid1->Cells[col][StringGrid1->RowCount - 1] = rowData->Strings[col];
+                }
+                delete rowData;
+            }
+        }
+        __finally {
+            delete expiredRows;
+        }
+
+        isFiltered = true; // Устанавливаем флаг фильтрации
+    } else {
+        // Восстанавливаем исходные данные
+        StringGrid1->RowCount = 1; // Очищаем строки (кроме заголовков)
+
+        for (int i = 0; i < originalRows->Count; ++i) {
+            StringGrid1->RowCount = StringGrid1->RowCount + 1;
+            TStringList *rowData = new TStringList;
+            rowData->Delimiter = '\t';
+            rowData->DelimitedText = originalRows->Strings[i];
+
+            for (int col = 0; col < rowData->Count; ++col) {
+                StringGrid1->Cells[col][StringGrid1->RowCount - 1] = rowData->Strings[col];
+            }
+            delete rowData;
+        }
+
+        isFiltered = false; // Сбрасываем флаг фильтрации
+    }
+}
+

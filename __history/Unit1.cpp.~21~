@@ -1,0 +1,185 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+  #include <System.RegularExpressions.hpp>
+#include <System.StrUtils.hpp>
+#include "Unit1.h"
+#include "Unit2.h"      //для связи двух форм
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+bool rad = false;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+    int nm = 0;
+    if (Form2->Caption == "Добавление") {
+        // Оставляем nm без изменений
+	} else {
+        int selectedRow = Form2->StringGrid1->Selection.Top;
+        if (selectedRow >= 0 && selectedRow < Form2->StringGrid1->RowCount) {
+            nm = selectedRow;
+        } else {
+            ShowMessage("Не выбрана строка для редактирования.");
+            return;
+        }
+    }
+
+
+// Проверка корректности введенных данных
+if (Edit1->Text.IsEmpty() || Edit2->Text.IsEmpty() || Edit3->Text.IsEmpty() || Edit4->Text.IsEmpty()
+    || Edit5->Text.IsEmpty() || Edit6->Text.IsEmpty()) {
+    ShowMessage("Необходимо заполнить все поля.");
+    return;
+}
+
+// Проверка, что первые 3 поля не содержат цифр
+if (!TRegEx::IsMatch(Edit1->Text, "^[^0-9]+$") ||
+    !TRegEx::IsMatch(Edit2->Text, "^[^0-9]+$") ||
+    !TRegEx::IsMatch(Edit3->Text, "^[^0-9]+$")) {
+    ShowMessage("Поля 'Фамилия', 'Имя' и 'Отчество' не должны содержать цифры.");
+    return;
+}
+
+int num1, num2, num3;
+if (!TryStrToInt(Edit4->Text, num1) || !TryStrToInt(Edit5->Text, num2) || !TryStrToInt(Edit6->Text, num3)) {
+    // Если не удалось преобразовать введенные значения в целочисленный тип,
+    // выводим сообщение об ошибке и прерываем выполнение функции
+    ShowMessage("Введите целочисленное значение в поля 'Количество урожая', 'Год урожая' и 'Номер бригады'.");
+    return;
+}
+
+// Проверка, что все числа больше 0
+if (num1 <= 0 || num2 <= 0 || num3 <= 0) {
+    ShowMessage("Все числа должны быть больше 0.");
+    return;
+}
+
+// Проверка, что в Edit5 введены только числа
+if (!TRegEx::IsMatch(Edit5->Text, "^\\d+$")) {
+    ShowMessage("В поле 'Год урожая' должны быть введены только целые числа.");
+    return;
+}
+
+// Проверка, что в Edit5 введен год меньше 2023
+int year;
+if (TryStrToInt(Edit5->Text, year)) {
+    if (year >= 2023 || year <= 0) {
+        ShowMessage("В поле 'Год урожая' должен быть введен год меньше 2023, но больше 0.");
+        return;
+    }
+}
+
+
+
+	// Все проверки пройдены успешно, можно сохранять данные в таблицу
+	Form2->StringGrid1->Cells[1][nm] = Edit1->Text;
+	Form2->StringGrid1->Cells[2][nm] = Edit2->Text;
+	Form2->StringGrid1->Cells[3][nm] = Edit3->Text;
+	Form2->StringGrid1->Cells[4][nm] = Edit4->Text;
+	Form2->StringGrid1->Cells[5][nm] = Edit5->Text;
+	Form2->StringGrid1->Cells[6][nm] = Edit6->Text;
+
+	// Закрываем форму Form1
+    Close();
+}
+
+
+//--
+//---------------------------------------------------------------------------
+//Переводить фокус на следующий компонент---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit1KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+	if(Key == VK_RETURN) Edit2->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit2KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+	if(Key == VK_RETURN) Edit3->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit3KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+	if(Key == VK_RETURN) Edit4->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit4KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+		if(Key == VK_RETURN) Edit5->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+
+
+
+void __fastcall TForm1::Edit5KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+	if(Key == VK_RETURN) Edit6->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit6KeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+
+{
+	if(Key == VK_RETURN) Button1->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::Edit1Exit(TObject *Sender)
+{
+	String text = Edit1->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit1->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit2Exit(TObject *Sender)
+{
+	String text = Edit2->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit2->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit3Exit(TObject *Sender)
+{
+	String text = Edit3->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit3->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Edit6Exit(TObject *Sender)
+{
+	String text = Edit6->Text.Trim();
+	if (!text.IsEmpty()) {
+		text = text.SubString(1, 1).UpperCase() + text.SubString(2, text.Length() - 1).LowerCase();
+		Edit6->Text = text;
+	}
+}
+//---------------------------------------------------------------------------
+
+
